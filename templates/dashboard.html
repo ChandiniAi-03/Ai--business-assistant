@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Business Assistant</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <div>
+
+            <h1>🤖 AI Business Assistant</h1>
+
+            <p>
+                Automate emails, tasks, meetings and business workflows.
+            </p>
+
+        </div>
+
+        <div class="status">
+
+            <span></span>
+
+            System Online
+
+        </div>
+
+    </header>
+
+    <!-- ============================================================
+     AUTOMATION CONTROLS
+============================================================ -->
+
+<div class="automation-controls">
+
+    <h2>⚡ Automation Controls</h2>
+
+    <div class="automation-buttons">
+
+        <a
+            href="{{ url_for('run_inbox') }}"
+            class="automation-btn"
+        >
+            🔄 Scan Gmail
+        </a>
+
+        <a
+            href="{{ url_for('run_meetings') }}"
+            class="automation-btn"
+        >
+            📅 Process Meetings
+        </a>
+
+        <a
+            href="{{ url_for('run_full_automation') }}"
+            class="automation-btn"
+        >
+            🧠 Run Full Automation
+        </a>
+
+    </div>
+
+</div>
+
+
+    <!-- STATISTICS -->
+
+    <section class="stats">
+
+        <div class="card">
+
+            <h3>📧 Emails Processed</h3>
+
+            <strong>{{ emails_processed }}</strong>
+
+            <p>Total emails analyzed</p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>✅ Action Items</h3>
+
+            <strong>{{ action_items }}</strong>
+
+            <p>Tasks identified by AI</p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>📅 Meetings</h3>
+
+            <strong>{{ meetings }}</strong>
+
+            <p>Meetings scheduled</p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>✍️ Responses</h3>
+
+            <strong>{{ responses }}</strong>
+
+            <p>AI responses generated</p>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN GRID -->
+
+    <section class="main-grid">
+
+
+        <!-- RECENT AUTOMATION -->
+
+        <div class="panel">
+
+            <h2>⚡ Recent Automation</h2>
+
+
+            {% if logs %}
+
+                {% for log in logs[:5] %}
+
+                <div class="activity">
+
+                    <div class="icon">
+
+                        {% if "Gmail" in log.action %}
+                            📧
+
+                        {% elif "Task" in log.action %}
+                            📋
+
+                        {% elif "Meeting" in log.action %}
+                            📅
+
+                        {% elif "Response" in log.action %}
+                            ✍️
+
+                        {% else %}
+                            🤖
+                        {% endif %}
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>{{ log.action }}</h3>
+
+                        <p>{{ log.details }}</p>
+
+                    </div>
+
+
+                    <span>{{ log.status }}</span>
+
+                </div>
+
+                {% endfor %}
+
+
+            {% else %}
+
+                <div class="activity">
+
+                    <div class="icon">🤖</div>
+
+                    <div>
+
+                        <h3>AI Business Assistant</h3>
+
+                        <p>
+                            Waiting for automation activity...
+                        </p>
+
+                    </div>
+
+                    <span>Ready</span>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- TASKS -->
+
+        <div class="panel">
+
+            <h2>📋 Tasks</h2>
+
+
+            {% if tasks %}
+
+                {% for task in tasks %}
+
+                <div class="task">
+
+                    <input
+                        type="checkbox"
+                        {% if task.status == "completed" %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <div>
+
+                        <strong>
+                            {{ task.task }}
+                        </strong>
+
+                        <br>
+
+                        <small>
+                            🎯 Priority: {{ task.priority }}
+                        </small>
+
+                        {% if task.due_date %}
+
+                        <br>
+
+                        <small>
+                            📅 Due: {{ task.due_date }}
+                        </small>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="task">
+
+                    <input
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <span>
+                        No tasks yet
+                    </span>
+
+                </div>
+
+            {% endif %}
+
+
+            <p class="dashboard-note">
+    Tasks are automatically created from actionable emails.
+</p>
+
+        </div>
+
+    </section>
+
+
+    <!-- MEETINGS -->
+
+    <section class="panel">
+
+        <h2>📅 Scheduled Meetings</h2>
+
+
+        {% if meeting_list %}
+
+            {% for meeting in meeting_list %}
+
+            <div class="activity">
+
+                <div class="icon">
+                    📅
+                </div>
+
+                <div>
+
+                    <h3>
+                        {{ meeting.title }}
+                    </h3>
+
+                    <p>
+                        {{ meeting.meeting_date }}
+                        at
+                        {{ meeting.start_time }}
+                        -
+                        {{ meeting.end_time }}
+                    </p>
+
+                </div>
+
+
+                {% if meeting.calendar_link %}
+
+                <a
+                    href="{{ meeting.calendar_link }}"
+                    target="_blank"
+                >
+                    Open Calendar
+                </a>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <div class="activity">
+
+                <div class="icon">
+                    📅
+                </div>
+
+                <div>
+
+                    <h3>
+                        No meetings scheduled
+                    </h3>
+
+                    <p>
+                        Meeting requests will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- AI RESPONSES -->
+
+    <section class="panel">
+
+        <h2>✍️ AI Generated Responses</h2>
+
+
+        {% if response_list %}
+
+            {% for response in response_list %}
+
+            <div class="log">
+
+                <span>
+                    To: {{ response.recipient }}
+                </span>
+
+                <p>
+                    {{ response.response }}
+                </p>
+
+                <small>
+                    Subject: {{ response.subject }}
+                    |
+                    {{ response.created_at }}
+                </small>
+
+            </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <div class="log">
+
+                <span>
+                    AI Response Generator
+                </span>
+
+                <p>
+                    AI-generated responses will appear here.
+                </p>
+
+                <small>
+                    Ready
+                </small>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- AUTOMATION LOGS -->
+
+    <section class="panel logs">
+
+        <h2>📝 Automation Logs</h2>
+
+
+        {% if logs %}
+
+            {% for log in logs %}
+
+            <div class="log">
+
+                <span>
+                    {{ log.action }}
+                </span>
+
+                <p>
+                    {{ log.details }}
+                </p>
+
+                <small>
+                    {{ log.created_at }}
+                </small>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="log">
+
+                <span>
+                    System
+                </span>
+
+                <p>
+                    AI Business Assistant started successfully.
+                </p>
+
+                <small>
+                    Just now
+                </small>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+
+credentials/
+token.json
+calendar_token.json
+
+.env
+
+data/assistant.db
